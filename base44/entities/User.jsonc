@@ -1,5 +1,4 @@
 {
-  "name": "User",
   "type": "object",
   "properties": {
     "business_role": {
