@@ -1,6 +1,6 @@
 {
-  "name": "PayoutRun",
   "type": "object",
+  "name": "PayoutRun",
   "properties": {
     "business_id": {
       "type": "string"
@@ -40,8 +40,8 @@
     },
     "locked": {
       "type": "boolean",
-      "default": false,
-      "description": "When true, period data is locked for non-admins"
+      "description": "When true, period data is locked for non-admins",
+      "default": false
     },
     "final_approved": {
       "type": "boolean",
@@ -97,7 +97,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -109,7 +109,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }
@@ -130,7 +130,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -142,7 +142,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }
@@ -163,7 +163,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -175,7 +175,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }
@@ -196,7 +196,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -208,7 +208,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }

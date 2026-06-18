@@ -121,49 +121,111 @@ export default function Export() {
 
 
   const exportCSV = async () => {
-    setExporting(true);
-    const headers = ['Vendor', 'Bill Number', 'Description', 'Amount', 'Expense Account', 'Class', 'Check Out Date', 'Reservation ID', 'Cleaner Name', 'Notes'];
-    const rows = [headers.join(',')];
+  setExporting(true);
+
+  try {
+    const formatCsvDate = (dateValue) => {
+      if (!dateValue) return '';
+      const d = new Date(`${dateValue}T12:00:00`);
+      if (Number.isNaN(d.getTime())) return '';
+      return format(d, 'M/d/yy');
+    };
+
+    // Bill Date and Due Date should be the last day of the payout period
+    const billDate = formatCsvDate(selectedRun?.end_date) || format(new Date(), 'M/d/yy');
+
+    const headers = [
+      'Post?',
+      'Invoice/Bill Date',
+      'Due Date',
+      'Invoice / Bill Number',
+      'Transaction Type',
+      'Customer',
+      'Vendor',
+      'Currency Code',
+      'Product/Services',
+      'Description',
+      'Qty',
+      'Discount %',
+      'Unit Price',
+      'Category',
+      'Location',
+      'Class',
+      'Tax',
+    ];
+
+    const rows = [headers.map(escapeCSV).join(',')];
 
     items.forEach(item => {
       const cleaner = cleanerMap[item.cleaner_id];
-      const vendor = cleaner?.qbo_vendor_name || item.cleaner_name;
+
+      const vendor = cleaner?.qbo_vendor_name || item.cleaner_name || '';
+      const description = item.qbo_description || '';
+      const billNumber =
+        item.bill_number ||
+        `${item.cleaner_name || 'CLEANER'}-${selectedRun?.pay_period_month || ''}-${selectedRun?.pay_period_number || ''}`;
+
+      const amount = Number(item.amount || 0).toFixed(2);
+      const category = item.expense_account || 'Contract labor:Rental Cleanings';
+      const qboClass = item.qbo_class || item.listing_name || '';
+
       const row = [
-        escapeCSV(vendor),
-        escapeCSV(item.bill_number),
-        escapeCSV(item.description),
-        (item.amount || 0).toFixed(2),
-        escapeCSV(item.expense_account),
-        escapeCSV(item.qbo_class || item.listing_name),
-        escapeCSV(item.checkout_date),
-        escapeCSV(item.normalized_reservation_key),
-        escapeCSV(item.cleaner_name),
-        escapeCSV(item.notes || ''),
+        'No',              // Post?
+        billDate,          // Invoice/Bill Date
+        billDate,          // Due Date
+        billNumber,        // Invoice / Bill Number
+        'Bill',            // Transaction Type
+        '',                // Customer
+        vendor,            // Vendor
+        'usd',             // Currency Code
+        '',                // Product/Services
+        description,       // Description
+        '1.00',            // Qty
+        '',                // Discount %
+        amount,            // Unit Price
+        category,          // Category
+        'pm',              // Location
+        qboClass,          // Class
+        'no',              // Tax
       ];
-      rows.push(row.join(','));
+
+      rows.push(row.map(escapeCSV).join(','));
     });
 
     const csv = rows.join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
+
     const a = document.createElement('a');
     a.href = url;
-    a.download = `cleaner-bills-${selectedRun?.pay_period_month}-${selectedRun?.pay_period_number}.csv`;
+    a.download = `cleaner-bills-${selectedRun?.pay_period_month || 'period'}-${selectedRun?.pay_period_number || ''}.csv`;
     a.click();
+
     URL.revokeObjectURL(url);
 
     // Mark items as exported
     for (const item of items) {
-      await base44.entities.PayoutItem.update(item.id, { status: 'Exported' });
+      await base44.entities.PayoutItem.update(item.id, {
+        status: 'Exported',
+      });
     }
+
     if (selectedRunId) {
-      await base44.entities.PayoutRun.update(selectedRunId, { status: 'Exported', exported_at: new Date().toISOString() });
+      await base44.entities.PayoutRun.update(selectedRunId, {
+        status: 'Exported',
+        exported_at: new Date().toISOString(),
+      });
     }
 
     toast.success(`Exported ${items.length} payout items to CSV`);
-    setExporting(false);
     qc.invalidateQueries();
-  };
+  } catch (error) {
+    console.error('CSV export failed:', error);
+    toast.error('Failed to export cleaner bills CSV');
+  } finally {
+    setExporting(false);
+  }
+};
 
   return (
     <div>

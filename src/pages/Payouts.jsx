@@ -68,6 +68,15 @@ export default function Payouts() {
     initialData: [],
   });
 
+  const { data: tasks = [] } = useQuery({
+    queryKey: ['cleaningTasks', businessId, userIsSystemAdmin],
+    enabled: queryEnabled,
+    queryFn: () => userIsSystemAdmin
+      ? base44.entities.CleaningTask.list('-created_date', 1000)
+      : base44.entities.CleaningTask.filter({ business_id: businessId }, '-created_date', 1000),
+    initialData: [],
+  });
+
   // Current period's run
   const currentRun = runs.find(
     r => r.pay_period_month === month && r.pay_period_number === number
@@ -170,6 +179,7 @@ export default function Payouts() {
       total_amount: totalAmount,
     });
 
+
     // Mark all draft/ready items as approved
     const toApprove = periodItems.filter(i => i.status === 'Draft' || i.status === 'Ready');
     for (let i = 0; i < toApprove.length; i += 20) {
@@ -239,7 +249,13 @@ export default function Payouts() {
     const cleanerMap = {};
     allCleaners.forEach(c => { cleanerMap[c.id] = c; });
 
+    const taskMap = {};
+    tasks.forEach(t => {
+      taskMap[t.id] = t;
+    });
+
     const items = [];
+
     for (const r of readyResults) {
       const cleaner = cleanerMap[r.cleaner_id];
       if (!cleaner) continue;
@@ -257,42 +273,62 @@ export default function Payouts() {
           payAmount = r.qbo_amount - diffThreshold; source = 'QBO';
         }
       }
-      items.push({
-        ...(businessId ? { business_id: businessId } : {}),
-        payout_run_id: run.id,
-        cleaner_id: r.cleaner_id,
-        cleaner_name: cleaner.cleaner_name,
-        bill_number: generateBillNumber(cleaner.cleaner_code, month, number),
-        reservation_id: r.reservation_id,
-        normalized_reservation_key: r.normalized_reservation_key,
-        task_id: r.task_id,
-        qbo_line_id: r.qbo_line_id,
-        listing_id: r.listing_id,
-        listing_name: r.listing_name,
-        description: `${r.listing_name} - ${r.guest_name}`,
-        qbo_class: r.listing_name,
-        checkout_date: r.checkout_date,
-        reservation_created_date: r.reservation_created_date,
-        fee_type: r.fee_type || 'Cleaning Fee',
-        expense_account: expenseAccount,
-        amount: Math.round(payAmount * 100) / 100,
-        source,
-        source_id: r.id,
-        status: 'Draft',
-        include_in_final_payout: true,
-        duplicate_check_status: 'Not Checked',
-      });
+    
+    const task = taskMap[r.task_id];
+
+    const cleanerDescription = `${r.listing_name || ''} - ${r.guest_name || ''}`.trim();
+    const qboDescription =
+      task?.task_title ||
+      task?.title ||
+      r.task_title ||
+      cleanerDescription;
+
+    items.push({
+      ...(businessId ? { business_id: businessId } : {}),
+      payout_run_id: run.id,
+      cleaner_id: r.cleaner_id,
+      cleaner_name: cleaner.cleaner_name,
+      bill_number: generateBillNumber(cleaner.cleaner_code, month, number),
+      reservation_id: r.reservation_id,
+      normalized_reservation_key: r.normalized_reservation_key,
+      task_id: r.task_id,
+      qbo_line_id: r.qbo_line_id,
+      listing_id: r.listing_id,
+      listing_name: r.listing_name,
+
+      // Cleaner-facing description used on PDF/email
+      description: cleanerDescription,
+
+      // QBO-only description used on CSV export
+      qbo_description: qboDescription,
+
+      qbo_class: r.listing_name,
+      checkout_date: r.checkout_date,
+      reservation_created_date: r.reservation_created_date,
+      fee_type: r.fee_type || 'Cleaning Fee',
+      expense_account: expenseAccount,
+      amount: Math.round(payAmount * 100) / 100,
+      source,
+      source_id: r.id,
+      status: 'Draft',
+      include_in_final_payout: true,
+      duplicate_check_status: 'Not Checked',
+    });
+  }
+
+    for (let i = 0; i < items.length; i += 20) {
+      await base44.entities.PayoutItem.bulkCreate(items.slice(i, i + 20));
     }
 
-    for (let i = 0; i < items.length; i += 20)
-      await base44.entities.PayoutItem.bulkCreate(items.slice(i, i + 20));
-
     const totalAmount = items.reduce((s, i) => s + i.amount, 0);
-    await base44.entities.PayoutRun.update(run.id, { total_amount: totalAmount, status: 'In Review' });
+    await base44.entities.PayoutRun.update(run.id, { total_amount: totalAmount, status: 'In Review' 
+    });
 
-    if (results.length === 0) toast.warning('No match results found. Run Matching first.');
-    else toast.success(`Created run with ${items.length} payout items ($${totalAmount.toFixed(2)})`);
-
+    if (results.length === 0) {
+      toast.warning('No match results found. Run Matching first.');
+    } else {
+      toast.success(`Created run with ${items.length} payout items ($${totalAmount.toFixed(2)})`);
+    }
     qc.invalidateQueries();
     setCreateRunOpen(false);
   };

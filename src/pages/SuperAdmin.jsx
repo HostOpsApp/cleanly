@@ -48,26 +48,30 @@ export default function SuperAdmin() {
   const [editingUser, setEditingUser] = useState(null);
   const [editUserForm, setEditUserForm] = useState(emptyUserForm);
   const [savingUser, setSavingUser] = useState(false);
+  const userIsSystemAdmin = isSystemAdmin(user);
 
   const { data: businesses = [], isLoading: bizLoading } = useQuery({
     queryKey: ['businesses'],
     queryFn: () => base44.entities.Business.list('name', 100),
     initialData: [],
+    enabled: userIsSystemAdmin,
   });
 
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ['allUsers'],
     queryFn: () => base44.entities.User.list('email', 200),
     initialData: [],
+    enabled: userIsSystemAdmin,
   });
 
   const { data: cleaners = [] } = useQuery({
     queryKey: ['allCleanersForUserAdmin'],
     queryFn: () => base44.entities.Cleaner.list('cleaner_name', 500),
     initialData: [],
+    enabled: userIsSystemAdmin,
   });
 
-  if (!isSystemAdmin(user)) {
+  if (!userIsSystemAdmin) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
         <ShieldAlert className="w-10 h-10" />
@@ -81,10 +85,10 @@ export default function SuperAdmin() {
   const inviteBusinessCleaners = cleaners.filter(c => !inviteBusinessId || c.business_id === inviteBusinessId);
 
   const handleCreateBusiness = async () => {
-    if (!bizForm.name) { toast.error('Business name is required'); return; }
+    if (!bizForm.name?.trim()) { toast.error('Business name is required'); return; }
     setCreatingBiz(true);
     try {
-      await base44.entities.Business.create({ ...bizForm, active: true });
+      await base44.entities.Business.create({ ...bizForm, name: bizForm.name.trim(), active: true });
       toast.success(`Business "${bizForm.name}" created`);
       setBizForm(emptyBiz);
       setBizDialogOpen(false);
@@ -103,20 +107,21 @@ export default function SuperAdmin() {
   };
 
   const handleInviteUser = async () => {
-    if (!inviteEmail) { toast.error('Email is required'); return; }
+    if (!inviteEmail?.trim()) { toast.error('Email is required'); return; }
     if (inviteBase44Role !== 'admin' && !inviteBusinessId) { toast.error('Business is required for Base44 user accounts'); return; }
+    if (inviteBusinessRole === 'cleaner' && !inviteCleanerId) { toast.error('Cleaner link is required when business role is Cleaner'); return; }
 
     setInviting(true);
     try {
       const allUsers = await base44.entities.User.list('email', 200);
-      let targetUser = allUsers.find(u => u.email?.toLowerCase() === inviteEmail.toLowerCase());
+      let targetUser = allUsers.find(u => u.email?.toLowerCase() === inviteEmail.trim().toLowerCase());
 
       if (!targetUser) {
-        await base44.users.inviteUser(inviteEmail, inviteBase44Role);
+        await base44.users.inviteUser(inviteEmail.trim(), inviteBase44Role);
         for (let i = 0; i < 10; i++) {
           await new Promise(r => setTimeout(r, 1000));
           const refreshed = await base44.entities.User.list('email', 200);
-          targetUser = refreshed.find(u => u.email?.toLowerCase() === inviteEmail.toLowerCase());
+          targetUser = refreshed.find(u => u.email?.toLowerCase() === inviteEmail.trim().toLowerCase());
           if (targetUser) break;
         }
       }
@@ -522,3 +527,4 @@ export default function SuperAdmin() {
     </div>
   );
 }
+

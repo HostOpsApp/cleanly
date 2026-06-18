@@ -198,37 +198,32 @@ Deno.serve(async (req) => {
   const user = await base44.auth.me();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-  // Base44 owns User.role (admin/user). CleanPay permissions use business_role.
+  // Normalize role to handle casing/spacing variations
   const normalizeRole = (role) => String(role || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
-  const readUserField = (field) => user?.[field] ?? user?.data?.[field] ?? user?.data?.data?.[field] ?? '';
 
-  const base44Role = normalizeRole(readUserField('role'));
-  const oldRoleFallback = normalizeRole(readUserField('role'));
-  const businessRole = normalizeRole(
-    readUserField('business_role') ||
-    readUserField('app_role') ||
-    (['owner_admin', 'manager', 'staff', 'cleaner'].includes(oldRoleFallback) ? oldRoleFallback : '')
-  );
+  // Exhaustively search for role in all known locations
+  const rawUserRole = user.role || user.data?.role || user.data?.data?.role || '';
+  const normalizedRole = normalizeRole(rawUserRole);
+  const isAdmin = normalizedRole === 'admin';
+  const isOwnerAdmin = normalizedRole === 'owner_admin';
 
-  const isAdmin = base44Role === 'admin';
-  const isOwnerAdmin = businessRole === 'owner_admin';
-
+  // DEBUG: log full user shape to help diagnose role issues
   console.log('hostawaySync user keys:', Object.keys(user));
-  console.log('hostawaySync roles:', { base44Role, businessRole, business_id: readUserField('business_id') });
+  console.log('hostawaySync user.role:', user.role, '| user.data?.role:', user.data?.role, '| resolved:', rawUserRole);
 
   if (!isAdmin && !isOwnerAdmin) {
     return Response.json({
-      error: `Access denied. Base44 role: "${base44Role || 'unknown'}". Business role: "${businessRole || 'unknown'}". Hostaway settings require system admin or owner_admin.`
+      error: `Access denied. Resolved role: "${rawUserRole || 'unknown'}". Full user keys: ${Object.keys(user).join(', ')}. user.role=${user.role}, user.data.role=${user.data?.role}`
     }, { status: 403 });
   }
 
-  const userBusinessId = readUserField('business_id');
+  const userBusinessId = user.business_id || user.data?.business_id || user.data?.data?.business_id || '';
 
   const payload = await req.json();
   const { action, account_id, api_key, start_date, end_date, status_filter } = payload;
   const submittedBusinessId = payload.business_id || '';
 
-  console.log(`hostawaySync [${action}] | base44Role=${base44Role} | businessRole=${businessRole} | userBusinessId=${userBusinessId} | submittedBusinessId=${submittedBusinessId}`);
+  console.log(`hostawaySync [${action}] | role=${rawUserRole} | userBusinessId=${userBusinessId} | submittedBusinessId=${submittedBusinessId}`);
 
   if (!action) return Response.json({ error: 'action required' }, { status: 400 });
 

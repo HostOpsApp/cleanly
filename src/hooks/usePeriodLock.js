@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
-import { canManageBusiness } from '@/lib/roles';
 
 /**
  * Returns whether the given pay period is locked (Approved or Exported PayoutRun exists)
@@ -9,7 +8,7 @@ import { canManageBusiness } from '@/lib/roles';
  */
 export function usePeriodLock(month, number) {
   const { user } = useAuth();
-  const isAdmin = canManageBusiness(user);
+  const isAdmin = user?.role === 'admin' || user?.role === 'owner_admin';
 
   const { data: runs = [] } = useQuery({
     queryKey: ['payoutRuns'],

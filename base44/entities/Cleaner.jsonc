@@ -1,6 +1,6 @@
 {
-  "name": "Cleaner",
   "type": "object",
+  "name": "Cleaner",
   "properties": {
     "business_id": {
       "type": "string"
@@ -61,7 +61,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -73,7 +73,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }
@@ -94,7 +94,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -106,7 +106,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }
@@ -127,7 +127,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -139,7 +139,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }
@@ -160,7 +160,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -172,7 +172,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }

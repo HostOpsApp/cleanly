@@ -79,7 +79,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -91,7 +91,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }
@@ -112,7 +112,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -124,7 +124,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }
@@ -145,7 +145,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -157,7 +157,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }
@@ -178,7 +178,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         },
@@ -190,7 +190,7 @@
               }
             },
             {
-              "data.business_id": "{{user.business_id}}"
+              "data.business_id": "{{user.data.business_id}}"
             }
           ]
         }

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Upload, Download, Loader2, CheckCircle2 } from 'lucide-react';
+import { Upload, Download, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 /**

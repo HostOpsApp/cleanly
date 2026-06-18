@@ -163,24 +163,8 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: "Unauthorized." }, { status: 401 });
-    }
-
-    // Base44 owns User.role (admin/user). CleanPay permissions use business_role.
-    const normalizeRole = (role) => String(role || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
-    const readUserField = (field) => user?.[field] ?? user?.data?.[field] ?? user?.data?.data?.[field] ?? "";
-    const base44Role = normalizeRole(readUserField("role"));
-    const oldRoleFallback = normalizeRole(readUserField("role"));
-    const businessRole = normalizeRole(
-      readUserField("business_role") ||
-      readUserField("app_role") ||
-      (["owner_admin", "manager", "staff", "cleaner"].includes(oldRoleFallback) ? oldRoleFallback : "")
-    );
-
-    const canImportQbo = base44Role === "admin" || ["owner_admin", "manager"].includes(businessRole);
-    if (!canImportQbo) {
-      return Response.json({ error: `Forbidden: QBO import requires system admin, owner_admin, or manager. Base44 role=${base44Role || "unknown"}, business_role=${businessRole || "unknown"}.` }, { status: 403 });
+    if (!user || user.role !== "admin") {
+      return Response.json({ error: "Forbidden: Admin access required." }, { status: 403 });
     }
 
     const body = await req.json().catch(() => ({}));
