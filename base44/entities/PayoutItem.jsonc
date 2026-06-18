@@ -168,7 +168,7 @@
           "$and": [
             {
               "user_condition": {
-                "business_role": "owner_admin"
+                "data.business_role": "owner_admin"
               }
             },
             {
@@ -180,7 +180,7 @@
           "$and": [
             {
               "user_condition": {
-                "business_role": "manager"
+                "data.business_role": "manager"
               }
             },
             {
@@ -201,7 +201,7 @@
           "$and": [
             {
               "user_condition": {
-                "business_role": "owner_admin"
+                "data.business_role": "owner_admin"
               }
             },
             {
@@ -213,7 +213,7 @@
           "$and": [
             {
               "user_condition": {
-                "business_role": "manager"
+                "data.business_role": "manager"
               }
             },
             {
@@ -234,7 +234,7 @@
           "$and": [
             {
               "user_condition": {
-                "business_role": "owner_admin"
+                "data.business_role": "owner_admin"
               }
             },
             {
@@ -246,7 +246,7 @@
           "$and": [
             {
               "user_condition": {
-                "business_role": "manager"
+                "data.business_role": "manager"
               }
             },
             {
@@ -267,7 +267,7 @@
           "$and": [
             {
               "user_condition": {
-                "business_role": "owner_admin"
+                "data.business_role": "owner_admin"
               }
             },
             {
@@ -279,7 +279,7 @@
           "$and": [
             {
               "user_condition": {
-                "business_role": "manager"
+                "data.business_role": "manager"
               }
             },
             {
