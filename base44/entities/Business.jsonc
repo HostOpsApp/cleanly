@@ -1,0 +1,61 @@
+{
+  "name": "Business",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Business display name"
+    },
+    "slug": {
+      "type": "string",
+      "description": "Short identifier used in reports"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "max_owner_admins": {
+      "type": "number",
+      "default": 2,
+      "description": "Max Owner-Admin users allowed (default 2)"
+    },
+    "max_managers": {
+      "type": "number",
+      "default": 2,
+      "description": "Max Manager users allowed (default 2)"
+    },
+    "max_users": {
+      "type": "number",
+      "default": 3,
+      "description": "Max User-role users allowed (default 3)"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

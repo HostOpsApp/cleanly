@@ -1,0 +1,157 @@
+{
+  "name": "AppSetting",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string"
+    },
+    "setting_key": {
+      "type": "string",
+      "description": "e.g. cleaning_fee_diff_threshold, pet_fee_payout_pct"
+    },
+    "setting_value": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "setting_key",
+    "setting_value"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

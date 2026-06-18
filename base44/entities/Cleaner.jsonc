@@ -1,0 +1,182 @@
+{
+  "name": "Cleaner",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string"
+    },
+    "cleaner_name": {
+      "type": "string"
+    },
+    "qbo_vendor_name": {
+      "type": "string"
+    },
+    "cleaner_code": {
+      "type": "string",
+      "description": "Used for bill numbers, e.g. ALLAN"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "mailing_address": {
+      "type": "string"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "default_expense_account": {
+      "type": "string",
+      "default": "Contract labor:Rental Cleanings"
+    },
+    "hostaway_user_id": {
+      "type": "string",
+      "description": "Hostaway numeric user ID \u2014 used for task assignment matching"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "business_id",
+    "cleaner_name",
+    "cleaner_code"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

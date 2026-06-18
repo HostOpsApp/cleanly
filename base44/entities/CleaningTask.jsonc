@@ -1,0 +1,267 @@
+{
+  "name": "CleaningTask",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "CSV",
+        "API"
+      ],
+      "default": "CSV"
+    },
+    "source_batch_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "task_title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "reservation_id": {
+      "type": "string"
+    },
+    "normalized_reservation_key": {
+      "type": "string"
+    },
+    "hostaway_listing_id": {
+      "type": "string"
+    },
+    "listing_name": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "channel_id": {
+      "type": "string"
+    },
+    "autotask_id": {
+      "type": "string"
+    },
+    "created_by_user_id": {
+      "type": "string"
+    },
+    "assignee_user_id": {
+      "type": "string"
+    },
+    "assignee_user": {
+      "type": "string"
+    },
+    "supervisor_user_id": {
+      "type": "string"
+    },
+    "supervisor_user": {
+      "type": "string"
+    },
+    "can_start_from": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "should_end_by": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confirmed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cost": {
+      "type": "number"
+    },
+    "cost_currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "cost_description": {
+      "type": "string"
+    },
+    "categories": {
+      "type": "string"
+    },
+    "cleaner_id": {
+      "type": "string"
+    },
+    "cleaner_name": {
+      "type": "string",
+      "description": "Matched from Cleaners table"
+    },
+    "cleaner_code": {
+      "type": "string",
+      "description": "Matched from Cleaners table"
+    },
+    "matched_reservation_id": {
+      "type": "string"
+    },
+    "matched_listing_id": {
+      "type": "string"
+    },
+    "api_raw_json": {
+      "type": "string"
+    },
+    "api_last_synced_at": {
+      "type": "string"
+    },
+    "import_status": {
+      "type": "string"
+    },
+    "import_exception_reason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

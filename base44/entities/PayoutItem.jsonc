@@ -1,0 +1,293 @@
+{
+  "name": "PayoutItem",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string"
+    },
+    "payout_run_id": {
+      "type": "string"
+    },
+    "cleaner_id": {
+      "type": "string"
+    },
+    "cleaner_name": {
+      "type": "string"
+    },
+    "bill_number": {
+      "type": "string"
+    },
+    "reservation_id": {
+      "type": "string"
+    },
+    "normalized_reservation_key": {
+      "type": "string"
+    },
+    "confirmation_code": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "qbo_line_id": {
+      "type": "string"
+    },
+    "listing_id": {
+      "type": "string"
+    },
+    "listing_name": {
+      "type": "string"
+    },
+    "qbo_class": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "fee_type": {
+      "type": "string",
+      "enum": [
+        "Cleaning Fee",
+        "Pet Fee",
+        "Manual",
+        "Adjustment",
+        "Owner Billable"
+      ],
+      "default": "Cleaning Fee"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "QBO",
+        "Hostaway Task",
+        "Listing Rate",
+        "Manual",
+        "Duplicate",
+        "Adjustment"
+      ]
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "expense_account": {
+      "type": "string"
+    },
+    "cleaning_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "checkout_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "reservation_created_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "billable_to_owner": {
+      "type": "boolean",
+      "default": false
+    },
+    "owner_billable_amount": {
+      "type": "number"
+    },
+    "owner_billable_description": {
+      "type": "string"
+    },
+    "include_in_final_payout": {
+      "type": "boolean",
+      "default": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Needs Review",
+        "Ready",
+        "Approved",
+        "Excluded",
+        "Exported"
+      ],
+      "default": "Draft"
+    },
+    "duplicate_check_status": {
+      "type": "string",
+      "enum": [
+        "Not Checked",
+        "Possible Duplicate",
+        "Approved as Valid",
+        "Excluded",
+        "Needs Review"
+      ],
+      "default": "Not Checked"
+    },
+    "duplicate_review_notes": {
+      "type": "string"
+    },
+    "exception_reason": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "is_duplicate_of": {
+      "type": "string"
+    },
+    "final_approved": {
+      "type": "boolean",
+      "default": false
+    },
+    "final_approved_by": {
+      "type": "string"
+    },
+    "final_approved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "cleaner_id",
+    "amount"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

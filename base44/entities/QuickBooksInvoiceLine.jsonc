@@ -1,0 +1,235 @@
+{
+  "name": "QuickBooksInvoiceLine",
+  "type": "object",
+  "properties": {
+    "qbo_invoice_id": {
+      "type": "string"
+    },
+    "qbo_line_id": {
+      "type": "string"
+    },
+    "line_number": {
+      "type": "number"
+    },
+    "doc_number": {
+      "type": "string"
+    },
+    "invoice_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "customer_id": {
+      "type": "string"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "guest_name": {
+      "type": "string"
+    },
+    "confirmation_code": {
+      "type": "string"
+    },
+    "base_confirmation_code": {
+      "type": "string"
+    },
+    "fee_type": {
+      "type": "string",
+      "enum": [
+        "cleaning_fee",
+        "pet_fee"
+      ]
+    },
+    "item_ref": {
+      "type": "string"
+    },
+    "item_name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "unit_price": {
+      "type": "number"
+    },
+    "line_amount": {
+      "type": "number"
+    },
+    "invoice_total": {
+      "type": "number"
+    },
+    "invoice_balance": {
+      "type": "number"
+    },
+    "realm_id": {
+      "type": "string"
+    },
+    "qbo_create_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "qbo_last_updated_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "imported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_synced_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "qbo_invoice_id",
+    "qbo_line_id",
+    "fee_type",
+    "line_amount",
+    "realm_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

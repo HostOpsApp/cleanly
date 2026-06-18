@@ -1,0 +1,200 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string"
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "CleaningTask",
+        "Reservation",
+        "QboCleanerRevenueLine",
+        "PayoutItem",
+        "User",
+        "Business",
+        "AppSetting",
+        "HostawayApiSetting",
+        "PayoutRun"
+      ]
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "deleted",
+        "edited",
+        "created",
+        "role_changed",
+        "user_disabled",
+        "payout_finalized",
+        "payout_unlocked",
+        "integration_changed",
+        "settings_changed"
+      ]
+    },
+    "record_id": {
+      "type": "string"
+    },
+    "record_summary": {
+      "type": "string"
+    },
+    "snapshot": {
+      "type": "string",
+      "description": "JSON snapshot of the record at time of action"
+    },
+    "changed_fields": {
+      "type": "string",
+      "description": "JSON list of field names that changed"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "User email or name"
+    },
+    "performed_by_role": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "entity_type",
+    "action",
+    "record_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "owner_admin"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "business_role": "manager"
+              }
+            },
+            {
+              "data.business_id": "{{user.business_id}}"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

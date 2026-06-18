@@ -1,0 +1,30 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "business_role": {
+      "type": "string",
+      "enum": [
+        "owner_admin",
+        "manager",
+        "staff",
+        "cleaner"
+      ],
+      "default": "staff",
+      "description": "CleanPay business-level role. Do not confuse this with Base44's built-in User.role, which remains admin/user."
+    },
+    "business_id": {
+      "type": "string",
+      "description": "Associated Business.id — required for all non-system-admin users."
+    },
+    "cleaner_id": {
+      "type": "string",
+      "description": "Linked Cleaner.id — required when business_role=cleaner."
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Inactive users cannot log in to business features."
+    }
+  }
+}
