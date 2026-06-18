@@ -68,6 +68,20 @@ export default function Payouts() {
     initialData: [],
   });
 
+  const listingMap = {};
+  listings.forEach(l => { listingMap[l.id] = l; });
+
+  const getQboClassForPayout = (result) => {
+    const listing = listingMap[result.listing_id];
+
+    return (
+      result.qbo_class ||
+      result.item_class ||
+      listing?.qbo_class_name ||
+      result.listing_name ||
+      ''
+    );
+  };
   const { data: tasks = [] } = useQuery({
     queryKey: ['cleaningTasks', businessId, userIsSystemAdmin],
     enabled: queryEnabled,
@@ -301,8 +315,7 @@ export default function Payouts() {
 
       // QBO-only description used on CSV export
       qbo_description: qboDescription,
-
-      qbo_class: r.listing_name,
+      qbo_class: getQboClassForPayout(r),
       checkout_date: r.checkout_date,
       reservation_created_date: r.reservation_created_date,
       fee_type: r.fee_type || 'Cleaning Fee',

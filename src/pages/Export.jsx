@@ -51,6 +51,15 @@ export default function Export() {
     initialData: [],
   });
 
+  const { data: listings = [] } = useQuery({
+  queryKey: ['listings', businessId, userIsSystemAdmin],
+  enabled: queryEnabled,
+  queryFn: () => userIsSystemAdmin
+    ? base44.entities.Listing.list('listing_name', 200)
+    : base44.entities.Listing.filter({ business_id: businessId }, 'listing_name', 200),
+  initialData: [],
+  });
+
   const { data: settings = [] } = useQuery({
     queryKey: ['appSettings', businessId, userIsSystemAdmin],
     enabled: queryEnabled,
@@ -102,6 +111,20 @@ export default function Export() {
 
   const cleanerMap = {};
   cleaners.forEach(c => { cleanerMap[c.id] = c; });
+
+  const listingMap = {};
+  listings.forEach(l => { listingMap[l.id] = l; });
+
+  const getQboClassForExport = (item) => {
+    const listing = listingMap[item.listing_id];
+    const itemClass = item.qbo_class || item.item_class || '';
+
+    if (itemClass && itemClass !== item.listing_name) {
+      return itemClass;
+    }
+
+    return listing?.qbo_class_name || itemClass || item.listing_name || '';
+  };
 
   // Group items by cleaner + bill number, sorted by cleaner name asc
   const grouped = {};
@@ -167,7 +190,7 @@ export default function Export() {
 
       const amount = Number(item.amount || 0).toFixed(2);
       const category = item.expense_account || 'Contract labor:Rental Cleanings';
-      const qboClass = item.qbo_class || item.listing_name || '';
+      const qboClass = getQboClassForExport(item);
 
       const row = [
         'No',              // Post?
@@ -329,7 +352,7 @@ export default function Export() {
                   <TableRow key={item.id}>
                     <TableCell className="font-mono text-xs">{item.checkout_date ? format(new Date(item.checkout_date), 'MM/dd/yyyy') : '—'}</TableCell>
                     <TableCell className="text-sm">{item.description}</TableCell>
-                    <TableCell className="text-sm">{item.qbo_class || item.listing_name}</TableCell>
+                    <TableCell className="text-sm">{getQboClassForExport(item)}</TableCell>
                     <TableCell className="font-mono text-xs">{item.normalized_reservation_key}</TableCell>
                     <TableCell className="text-xs">{item.fee_type}</TableCell>
                     <TableCell className="font-mono font-semibold">${(item.amount || 0).toFixed(2)}</TableCell>

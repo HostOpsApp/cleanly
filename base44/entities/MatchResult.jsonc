@@ -23,6 +23,10 @@
     "listing_name": {
       "type": "string"
     },
+    "qbo_class": {
+      "type": "string",
+      "description": "The class associated with the QBO invoice line item."
+    },
     "guest_name": {
       "type": "string"
     },

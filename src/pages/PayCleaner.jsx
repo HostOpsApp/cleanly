@@ -199,6 +199,21 @@ export default function PayCleaner() {
     initialData: [],
   });
 
+  const listingMap = {};
+    listings.forEach(l => { listingMap[l.id] = l; });
+
+    const getQboClassForPayout = (result) => {
+      const listing = listingMap[result.listing_id];
+
+      return (
+        result.qbo_class ||
+        result.item_class ||
+        listing?.qbo_class_name ||
+        result.listing_name ||
+        ''
+      );
+    };
+
   // Existing data for the selected period (to show "already run" status)
   const { data: existingReservations = [] } = useQuery({
     queryKey: ['wizardExistingRes', BUSINESS_ID, month, number],
@@ -768,7 +783,7 @@ export default function PayCleaner() {
           listing_id: r.listing_id,
           listing_name: r.listing_name,
           description: `${r.listing_name} - ${r.guest_name}`,
-          qbo_class: r.listing_name,
+          qbo_class: getQboClassForPayout(r),
           checkout_date: r.checkout_date,
           reservation_created_date: r.reservation_created_date,
           fee_type: r.fee_type || 'Cleaning Fee',
