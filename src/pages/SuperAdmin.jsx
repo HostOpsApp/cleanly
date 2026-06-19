@@ -134,18 +134,25 @@ export default function SuperAdmin() {
         name: updatedName,
       });
 
-      // Keep User.business_name in sync for the sidebar
-      const usersToUpdate = users.filter(u => getBusinessId(u) === editingBiz.id);
+      // Keep User.business_name in sync for the sidebar.
+      // Pull a fresh list and compare IDs as strings so we do not miss users
+      // because of stale React Query data or ID type differences.
+    const freshUsers = await base44.entities.User.list('email', 500);
 
-      await Promise.all(
-        usersToUpdate.map(u =>
-          base44.entities.User.update(u.id, {
-            business_name: updatedName,
-          })
-        )
-      );
+    const usersToUpdate = freshUsers.filter(
+      u => String(getBusinessId(u)) === String(editingBiz.id)
+    );
 
-      toast.success(`Business "${updatedName}" updated`);
+    await Promise.all(
+      usersToUpdate.map(u =>
+        base44.entities.User.update(u.id, {
+          business_name: updatedName,
+        })
+      )
+    );
+
+    toast.success(`Business "${updatedName}" updated. Synced ${usersToUpdate.length} user record(s).`);
+
       setEditBizDialogOpen(false);
       setEditingBiz(null);
 
@@ -431,6 +438,7 @@ export default function SuperAdmin() {
                     <TableHead>Base44 Role</TableHead>
                     <TableHead>Business Role</TableHead>
                     <TableHead>Business</TableHead>
+                    <TableHead>User Business Name</TableHead>
                     <TableHead>Cleaner Link</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead></TableHead>
@@ -459,6 +467,7 @@ export default function SuperAdmin() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm">{businessName(bizId)}</TableCell>
+                        <TableCell className="text-sm">{getBusinessName(u) || '—'}</TableCell>
                         <TableCell className="text-sm">{linkedCleaner?.cleaner_name || linkedCleanerId || '—'}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">{u.created_date ? new Date(u.created_date).toLocaleDateString() : '—'}</TableCell>
                         <TableCell>
