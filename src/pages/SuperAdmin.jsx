@@ -14,7 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Trash2, Loader2, Building2, Users, UserPlus, ShieldAlert, RefreshCw, Pencil } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import { toast } from 'sonner';
-import { getBase44Role, getBusinessRole, getBusinessId, getRoleLabel, isSystemAdmin } from '@/lib/roles';
+import { getBase44Role, getBusinessRole, getBusinessId, getRoleLabel, isSystemAdmin, getBusinessName } from '@/lib/roles';
 
 const CLEARABLE_ENTITIES = [
   { key: 'CleaningTask', label: 'Cleaning Tasks', entity: 'CleaningTask' },
@@ -35,6 +35,10 @@ export default function SuperAdmin() {
   const qc = useQueryClient();
   const [bizDialogOpen, setBizDialogOpen] = useState(false);
   const [bizForm, setBizForm] = useState(emptyBiz);
+  const [editBizDialogOpen, setEditBizDialogOpen] = useState(false);
+  const [editingBiz, setEditingBiz] = useState(null);
+  const [editBizForm, setEditBizForm] = useState(emptyBiz);
+  const [savingBiz, setSavingBiz] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteBase44Role, setInviteBase44Role] = useState('user');
   const [inviteBusinessRole, setInviteBusinessRole] = useState('staff');
@@ -84,6 +88,19 @@ export default function SuperAdmin() {
   const businessCleaners = cleaners.filter(c => !editUserForm.business_id || c.business_id === editUserForm.business_id);
   const inviteBusinessCleaners = cleaners.filter(c => !inviteBusinessId || c.business_id === inviteBusinessId);
 
+  const openEditBusiness = (biz) => {
+    setEditingBiz(biz);
+    setEditBizForm({
+      name: biz.name || '',
+      slug: biz.slug || '',
+      max_owner_admins: biz.max_owner_admins ?? 2,
+      max_managers: biz.max_managers ?? 2,
+      max_users: biz.max_users ?? 3,
+      active: biz.active !== false,
+    });
+    setEditBizDialogOpen(true);
+  };
+  
   const handleCreateBusiness = async () => {
     if (!bizForm.name?.trim()) { toast.error('Business name is required'); return; }
     setCreatingBiz(true);
@@ -97,6 +114,47 @@ export default function SuperAdmin() {
       toast.error('Business create failed: ' + (err.message || 'Unknown error'));
     } finally {
       setCreatingBiz(false);
+    }
+  };
+
+  const handleSaveBusiness = async () => {
+    if (!editingBiz) return;
+    if (!editBizForm.name?.trim()) {
+      toast.error('Business name is required');
+      return;
+    }
+
+    setSavingBiz(true);
+
+    try {
+      const updatedName = editBizForm.name.trim();
+
+      await base44.entities.Business.update(editingBiz.id, {
+        ...editBizForm,
+        name: updatedName,
+      });
+
+      // Keep User.business_name in sync for the sidebar
+      const usersToUpdate = users.filter(u => getBusinessId(u) === editingBiz.id);
+
+      await Promise.all(
+        usersToUpdate.map(u =>
+          base44.entities.User.update(u.id, {
+            business_name: updatedName,
+          })
+        )
+      );
+
+      toast.success(`Business "${updatedName}" updated`);
+      setEditBizDialogOpen(false);
+      setEditingBiz(null);
+
+      qc.invalidateQueries({ queryKey: ['businesses'] });
+      qc.invalidateQueries({ queryKey: ['allUsers'] });
+    } catch (err) {
+      toast.error('Business update failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setSavingBiz(false);
     }
   };
 
@@ -130,6 +188,7 @@ export default function SuperAdmin() {
         await base44.entities.User.update(targetUser.id, {
           business_role: inviteBusinessRole,
           business_id: inviteBusinessId || '',
+          business_name: inviteBusinessId ? businessName(inviteBusinessId) : '',
           cleaner_id: inviteBusinessRole === 'cleaner' ? inviteCleanerId : '',
           active: true,
         });
@@ -169,6 +228,7 @@ export default function SuperAdmin() {
       await base44.entities.User.update(editingUser.id, {
         business_role: editUserForm.business_role,
         business_id: editUserForm.business_id,
+        business_name: editUserForm.business_id ? businessName(editUserForm.business_id) : '',
         cleaner_id: editUserForm.business_role === 'cleaner' ? editUserForm.cleaner_id : '',
       });
       toast.success('User updated');
@@ -261,6 +321,9 @@ export default function SuperAdmin() {
                       </Badge>
                     </TableCell>
                     <TableCell>
+                      <Button variant="ghost" size="icon" onClick={() => openEditBusiness(b)}>
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="ghost" size="icon" className="hover:text-destructive"><Trash2 className="w-3.5 h-3.5" /></Button>
@@ -502,7 +565,77 @@ export default function SuperAdmin() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog open={editBizDialogOpen} onOpenChange={v => { setEditBizDialogOpen(v); if (!v) setEditingBiz(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Business</DialogTitle>
+          </DialogHeader>
 
+          <div className="space-y-3">
+            <div>
+              <Label>Business Name *</Label>
+              <Input
+                value={editBizForm.name}
+                onChange={e => setEditBizForm(f => ({ ...f, name: e.target.value }))}
+                className="mt-1"
+                placeholder="Business name"
+              />
+            </div>
+
+            <div>
+              <Label>Slug / Short ID</Label>
+              <Input
+                value={editBizForm.slug}
+                onChange={e => setEditBizForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))}
+                className="mt-1 font-mono"
+                placeholder="business-slug"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label className="text-xs">Max Owner-Admins</Label>
+                <Input
+                  type="number"
+                  value={editBizForm.max_owner_admins}
+                  onChange={e => setEditBizForm(f => ({ ...f, max_owner_admins: parseInt(e.target.value) || 2 }))}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs">Max Managers</Label>
+                <Input
+                  type="number"
+                  value={editBizForm.max_managers}
+                  onChange={e => setEditBizForm(f => ({ ...f, max_managers: parseInt(e.target.value) || 2 }))}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs">Max Staff</Label>
+                <Input
+                  type="number"
+                  value={editBizForm.max_users}
+                  onChange={e => setEditBizForm(f => ({ ...f, max_users: parseInt(e.target.value) || 3 }))}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditBizDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveBusiness} disabled={savingBiz}>
+              {savingBiz ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+              Save Business
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={bizDialogOpen} onOpenChange={v => { setBizDialogOpen(v); if (!v) setBizForm(emptyBiz); }}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Create New Business</DialogTitle></DialogHeader>
