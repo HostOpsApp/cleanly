@@ -8,7 +8,8 @@ import {
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
-import { NAV_ITEMS, canAccessPage, getRoleLabel } from '@/lib/roles';
+import { NAV_ITEMS, canAccessPage, getRoleLabel, getBusinessName } from '@/lib/roles';
+
 
 const ICONS = {
   '/':                  LayoutDashboard,
@@ -35,6 +36,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
   const location = useLocation();
   const { user, logout } = useAuth();
 
+  const businessName = getBusinessName(user) || 'Payout Automation';
   const visibleItems = NAV_ITEMS.filter(item => canAccessPage(user, item.path));
 
   return (
@@ -51,7 +53,9 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             </div>
             <div>
               <h1 className="text-sm font-bold tracking-tight text-white">CleanPay</h1>
-              <p className="text-[10px] text-sidebar-foreground/60">Payout Automation</p>
+              <p className="text-[10px] text-sidebar-foreground/60 truncate max-w-[150px]">
+                {businessName}
+              </p>
             </div>
           </div>
         ) : (

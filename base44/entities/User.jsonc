@@ -17,6 +17,10 @@
       "type": "string",
       "description": "Associated Business.id — required for all non-system-admin users."
     },
+    "business_name": {
+    "type": "string",
+      "description": "Display name of the business this user belongs to. Used in the sidebar header."
+    },
     "cleaner_id": {
       "type": "string",
       "description": "Linked Cleaner.id — required when business_role=cleaner."

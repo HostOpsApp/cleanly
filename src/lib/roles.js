@@ -95,6 +95,10 @@ export function getBusinessId(user) {
   return readUserField(user, 'business_id') || readUserField(user, 'businessId') || '';
 }
 
+export function getBusinessName(user) {
+  return readUserField(user, 'business_name') || readUserField(user, 'businessName') || '';
+}
+
 export function getCleanerId(user) {
   return readUserField(user, 'cleaner_id') || readUserField(user, 'cleanerId') || '';
 }
