@@ -225,10 +225,14 @@ export default function SuperAdmin() {
     if (!editingUser) return;
     setSavingUser(true);
     try {
+
+      const selectedBusiness = businesses.find(
+        b => String(b.id) === String(editUserForm.business_id)
+      );
       await base44.entities.User.update(editingUser.id, {
         business_role: editUserForm.business_role,
         business_id: editUserForm.business_id,
-        business_name: editUserForm.business_id ? businessName(editUserForm.business_id) : '',
+        business_name: selectedBusiness?.name || '',
         cleaner_id: editUserForm.business_role === 'cleaner' ? editUserForm.cleaner_id : '',
       });
       toast.success('User updated');
